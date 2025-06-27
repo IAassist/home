@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IAassist – Assistente Inteligente para WhatsApp e Google Agenda</title>
+  <meta name="description" content="Gerencie sua agenda do Google Calendar via WhatsApp com IA Gemini. Crie, atualize e cancele eventos por comandos naturais. Segurança, automação e integração total.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --secondary: #34a853;
+      --accent: #fbbc05;
+      --danger: #ea4335;
+      --bg: #f8fafc;
+      --card-bg: #fff;
+      --text: #222;
+      --muted: #666;
+      --shadow: 0 4px 24px rgba(30, 42, 80, 0.08);
+      --radius: 16px;
+      --transition: 0.2s cubic-bezier(.4,0,.2,1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      padding: 36px 0 16px 0;
+      text-align: center;
+      border-radius: 0 0 var(--radius) var(--radius);
+      animation: fadeInDown 1s;
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-40px);}
+      to   { opacity: 1; transform: translateY(0);}
+    }
+    .logo {
+      width: 110px;
+      height: auto;
+      margin-bottom: 12px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px #e0e0e0;
+      background: #fff;
+      padding: 8px;
+      transition: box-shadow var(--transition);
+    }
+    header h1 {
+      font-size: 2.7rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      letter-spacing: -1px;
+    }
+    header p {
+      font-size: 1.18rem;
+      color: var(--muted);
+      margin-bottom: 0;
+      font-weight: 500;
+    }
+    nav {
+      background: #fff;
+      padding: 0 0 0 0;
+      text-align: center;
+      margin-bottom: 0;
+      box-shadow: 0 1px 0 #f1f1f1;
+    }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: inline-flex;
+      gap: 30px;
+    }
+    nav a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      display: inline-block;
+      padding: 18px 0 14px 0;
+      border-bottom: 2px solid transparent;
+      transition: border-color var(--transition), color var(--transition);
+    }
+    nav a:hover, nav a.active {
+      border-bottom: 2.5px solid var(--primary);
+      color: #174ea6;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 38px auto 0 auto;
+      padding: 0 24px;
+    }
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 36px;
+      margin-bottom: 56px;
+    }
+    .hero-content {
+      flex: 1 1 350px;
+      min-width: 300px;
+      animation: fadeInLeft 1.2s;
+    }
+    .hero-title {
+      font-size: 2.3rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--primary);
+    }
+    .hero-desc {
+      font-size: 1.2rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .cta {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      padding: 14px 38px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 2px 16px #dbeafe77;
+      margin-top: 10px;
+      transition: background var(--transition), box-shadow var(--transition);
+      border: none;
+      cursor: pointer;
+    }
+    .cta:hover {
+      background: linear-gradient(90deg, #174ea6, #0d8b4f);
+      box-shadow: 0 4px 18px #b6e0ff66;
+    }
+    .hero-img {
+      flex: 1 1 320px;
+      min-width: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeInRight 1.2s;
+    }
+    .hero-img img {
+      width: 220px;
+      max-width: 100%;
+      border-radius: 30px;
+      background: #fff;
+      box-shadow: 0 4px 32px #e3e3e3;
+      border: 8px solid #fff;
+    }
+    @keyframes fadeInLeft {
+      from { opacity: 0; transform: translateX(-40px);}
+      to   { opacity: 1; transform: translateX(0);}
+    }
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(40px);}
+      to   { opacity: 1; transform: translateX(0);}
+    }
+    section {
+      margin-bottom: 60px;
+    }
+    .section-title {
+      font-size: 2rem;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 18px;
+      letter-spacing: -0.5px;
+      text-align: center;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 28px;
+      margin-top: 18px;
+    }
+    .feature-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: transform var(--transition), box-shadow var(--transition);
+      border-left: 5px solid var(--primary);
+      min-height: 180px;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 8px 32px #b6e0ff44;
+      border-left: 5px solid var(--secondary);
+    }
+    .feature-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+    .feature-desc {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .examples-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      justify-content: center;
+      margin-top: 18px;
+    }
+    .example-item {
+      background: #f1f7fd;
+      border-left: 4px solid var(--primary);
+      padding: 14px 22px;
+      border-radius: 8px;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      color: #222;
+      font-size: 1rem;
+      min-width: 220px;
+      box-shadow: 0 2px 8px #e3e3e3;
+    }
+    .about-content {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      text-align: center;
+    }
+    .security-list {
+      max-width: 600px;
+      margin: 0 auto;
+      padding-left: 0;
+      color: var(--muted);
+    }
+    .security-list li {
+      margin-bottom: 8px;
+      list-style: disc inside;
+    }
+    .contact-section {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 24px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .contact-section ul {
+      padding: 0;
+      list-style: none;
+      margin-bottom: 14px;
+      color: var(--muted);
+    }
+    .contact-section ul li {
+      margin-bottom: 8px;
+    }
+    .contact-form {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+    }
+    .contact-form input, .contact-form textarea {
+      padding: 12px;
+      border: 1px solid #d3d3d3;
+      border-radius: 6px;
+      font-size: 1rem;
+      background: #f8fafc;
+      transition: border-color var(--transition);
+    }
+    .contact-form input:focus, .contact-form textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    .contact-form button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 0;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .contact-form button:hover {
+      background: #174ea6;
+    }
+    .privacy-section {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 24px;
+      max-width: 800px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.04rem;
+      line-height: 1.7;
+    }
+    .privacy-section h3 {
+      color: var(--primary);
+      margin-top: 22px;
+      margin-bottom: 8px;
+    }
+    footer {
+      background: #fff;
+      text-align: center;
+      padding: 22px 0 18px 0;
+      font-size: 1rem;
+      color: #888;
+      margin-top: 60px;
+      border-top: 1px solid #e5e5e5;
+    }
+    @media (max-width: 900px) {
+      .container { padding: 0 8px; }
+      .hero { flex-direction: column-reverse; gap: 18px;}
+      .hero-content, .hero-img { min-width: 0; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.5rem; }
+      .hero-title { font-size: 1.3rem; }
+      .section-title { font-size: 1.1rem; }
+      .privacy-section { padding: 18px 8px; }
+      .contact-section { padding: 18px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img class="logo" src="logo.jpg" alt="Logotipo IAassist">
+    <h1>IAassist</h1>
+    <p>Assistente inteligente para WhatsApp com integração Google Calendar e IA Gemini</p>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="#inicio" class="active">Início</a></li>
+      <li><a href="#funcionalidades">Funcionalidades</a></li>
+      <li><a href="#exemplos">Exemplos</a></li>
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#seguranca">Segurança</a></li>
+      <li><a href="#contato">Contato</a></li>
+      <li><a href="#privacidade">Privacidade</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <!-- HERO -->
+    <section class="hero" id="inicio">
+      <div class="hero-content">
+        <div class="hero-title">Automatize sua agenda e conversas no WhatsApp com IA</div>
+        <div class="hero-desc">
+          O <strong>IAassist</strong> conecta seu WhatsApp ao Google Calendar e à IA Gemini, permitindo criar, buscar, atualizar e cancelar eventos por comandos naturais, além de responder perguntas e automatizar tarefas. Tudo com segurança, performance e privacidade.
+        </div>
+        <a class="cta" href="#contato">Quero experimentar</a>
+      </div>
+      <div class="hero-img">
+        <img src="https://pplx-res.cloudinary.com/image/private/user_uploads/41580199/08e97a9c-d259-474f-a345-ecc67fd15d19/WhatsApp-Image-2025-06-26-at-23.35.37.jpg" alt="IAassist Logo Grande">
+      </div>
+    </section>
+
+    <!-- FUNCIONALIDADES -->
+    <section id="funcionalidades">
+      <div class="section-title">Funcionalidades</div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-title">Comandos Naturais</div>
+          <div class="feature-desc">Crie, busque, atualize e cancele eventos no Google Calendar apenas conversando no WhatsApp.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Cancelamento em Massa</div>
+          <div class="feature-desc">Cancele todos os eventos de um período com um só comando, otimizando sua rotina.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Respostas Inteligentes</div>
+          <div class="feature-desc">IA Gemini interpreta comandos e responde de forma clara, personalizada e contextualizada.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Integração WhatsApp</div>
+          <div class="feature-desc">Receba e envie mensagens automáticas via webhook, com processamento assíncrono para alta performance.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Autenticação JWT</div>
+          <div class="feature-desc">Segurança robusta para APIs, login seguro e tratamento de erros amigável.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">OAuth2 Google</div>
+          <div class="feature-desc">Integração segura com o Google Calendar, incluindo renovação automática de tokens.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Logs e Observabilidade</div>
+          <div class="feature-desc">Logs detalhados e tratamento global de exceções para transparência e troubleshooting.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Suporte a Perguntas Gerais</div>
+          <div class="feature-desc">Além da agenda, converse com a IA Gemini para dúvidas, lembretes e automação de tarefas.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXEMPLOS -->
+    <section id="exemplos">
+      <div class="section-title">Exemplos de Comandos via WhatsApp</div>
+      <div class="examples-list">
+        <div class="example-item">"Agendar reunião amanhã às 15h"</div>
+        <div class="example-item">"Quais meus compromissos de hoje?"</div>
+        <div class="example-item">"Cancelar evento Reunião de equipe"</div>
+        <div class="example-item">"Cancelar todos os eventos de amanhã"</div>
+        <div class="example-item">"Qual a previsão do tempo?"</div>
+        <div class="example-item">"Me lembre de beber água"</div>
+      </div>
+    </section>
+
+    <!-- SOBRE -->
+    <section id="sobre">
+      <div class="section-title">Sobre o IAassist</div>
+      <div class="about-content">
+        <p>
+          O IAassist nasceu para simplificar a vida de quem precisa de organização e agilidade. Combinando inteligência artificial de ponta (Gemini) e integração total com Google Calendar e WhatsApp, nossa missão é levar automação e produtividade para qualquer pessoa, de forma simples, segura e acessível.
+        </p>
+        <p>
+          <strong>Equipe:</strong> Profissionais apaixonados por tecnologia, IA, automação e experiência do usuário.
+        </p>
+      </div>
+    </section>
+
+    <!-- SEGURANÇA -->
+    <section id="seguranca">
+      <div class="section-title">Segurança e Privacidade</div>
+      <ul class="security-list">
+        <li>Autenticação JWT para todas as APIs</li>
+        <li>Login seguro e tratamento de erros</li>
+        <li>Integração OAuth2 com Google para máxima segurança</li>
+        <li>Renovação automática de tokens</li>
+        <li>Dados criptografados e protegidos</li>
+        <li>Respeito total à privacidade do usuário</li>
+      </ul>
+    </section>
+
+    <!-- CONTATO -->
+    <section id="contato">
+      <div class="section-title">Contato</div>
+      <div class="contact-section">
+        <ul>
+          <li><strong>E-mail:</strong> thiagogomes19@hotmail.com</li>
+        </ul>
+        <form class="contact-form">
+          <input type="text" placeholder="Seu nome" required>
+          <input type="email" placeholder="Seu e-mail" required>
+          <textarea placeholder="Sua mensagem" rows="4" required></textarea>
+          <button type="submit">Enviar</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- POLÍTICA DE PRIVACIDADE -->
+    <section id="privacidade">
+      <div class="section-title">Política de Privacidade</div>
+      <div class="privacy-section">
+        <h3>1. Coleta de Dados</h3>
+        <p>Coletamos apenas os dados necessários para funcionamento do assistente, como nome, número do WhatsApp e informações de agenda do Google Calendar.</p>
+        <h3>2. Uso das Informações</h3>
+        <p>Os dados são utilizados exclusivamente para gerenciar sua agenda, enviar lembretes e possibilitar conversas com a IA Gemini.</p>
+        <h3>3. Compartilhamento</h3>
+        <p>Não compartilhamos seus dados com terceiros sem sua autorização, exceto quando exigido por lei.</p>
+        <h3>4. Segurança</h3>
+        <p>Utilizamos criptografia e autenticação segura para proteger suas informações.</p>
+        <h3>5. Direitos do Usuário</h3>
+        <p>Você pode solicitar a exclusão ou alteração de seus dados a qualquer momento, entrando em contato pelo e-mail thiagogomes19@hotmail.com.</p>
+        <h3>6. Alterações na Política</h3>
+        <p>Esta política pode ser atualizada periodicamente. Recomendamos revisá-la regularmente.</p>
+        <p><strong>Dúvidas?</strong> Entre em contato pelo e-mail thiagogomes19@hotmail.com.</p>
+      </div>
+    </section>
+  </div>
+  <footer>
+    © 2025 IAassist. Todos os direitos reservados.
+  </footer>
+</body>
+</html>
